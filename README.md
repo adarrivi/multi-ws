@@ -1,5 +1,5 @@
 # multi-ws
-Web service aggregating other in a multithreaded fashion
+Web service aggregating different endpoints in a multithreaded fashion
 
 [![Build Status](https://travis-ci.org/adarrivi/multi-ws.png)](https://travis-ci.org/adarrivi/multi-ws)
 
