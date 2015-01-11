@@ -1,0 +1,98 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>web-service</artifactId>
+	<parent>
+		<groupId>com.adarrivi.multiws</groupId>
+		<artifactId>parent</artifactId>
+		<version>0.1</version>
+		<relativePath>../parent/pom.xml</relativePath>
+	</parent>
+
+	<packaging>war</packaging>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>com.adarrivi.multiws</groupId>
+			<artifactId>aggregator-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<!-- This dependency is usually provided by the server, so don't include 
+				it into the war -->
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- Spring Json mapping -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-oxm</artifactId>
+		</dependency>
+
+		<!-- Test dependencies -->
+		<dependency>
+			<groupId>com.adarrivi.multiws</groupId>
+			<artifactId>aggregator-common-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<finalName>web-service</finalName>
+		<plugins>
+
+			<!-- By default maven-war-plugin fails if web.xml is missing. We need 
+				to override that behavior -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+				</configuration>
+			</plugin>
+
+			<!-- Cargo Plugin to load the application into a running tomcat -->
+			<!-- To deploy the app use: mvn clean package -DskipTests && mvn -pl ../web-service 
+				cargo:redeploy -->
+			<plugin>
+				<groupId>org.codehaus.cargo</groupId>
+				<artifactId>cargo-maven2-plugin</artifactId>
+				<version>1.4.9</version>
+				<configuration>
+					<!-- Container configuration -->
+					<container>
+						<containerId>tomcat7x</containerId>
+						<type>remote</type>
+					</container>
+					<!-- Configuration to use with the container -->
+					<configuration>
+						<type>runtime</type>
+						<properties>
+							<cargo.remote.username>multiws</cargo.remote.username>
+							<cargo.remote.password>multiws</cargo.remote.password>
+						</properties>
+					</configuration>
+
+					<!-- Deployables to deploy -->
+					<deployables>
+						<deployable>
+							<artifactId>web-service</artifactId>
+							<type>war</type>
+						</deployable>
+					</deployables>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

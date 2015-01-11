@@ -1,0 +1,204 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.adarrivi.multiws</groupId>
+	<artifactId>parent</artifactId>
+	<version>0.1</version>
+	<packaging>pom</packaging>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<aggregator.version>0.1</aggregator.version>
+
+		<jdk.version>1.8</jdk.version>
+		<org.slf4j.version>1.7.7</org.slf4j.version>
+		<log4j2.version>2.0.2</log4j2.version>
+		<org.springframework.version>4.1.0.RELEASE</org.springframework.version>
+		<com.fasterxml.jackson.version>2.3.3</com.fasterxml.jackson.version>
+
+		<!--Testing dependencies -->
+		<junit.version>4.12</junit.version>
+		<org.mockito.version>1.9.5</org.mockito.version>
+		<!--Testing dependencies -->
+	</properties>
+
+	<profiles>
+		<!-- ** Testing executions ** -->
+		<!-- Only run unit tests: mvn -PunitTest test -->
+		<!-- Only run integration tests: mvn -PintegrationTest test -->
+		<!-- Run everything: mvn test -->
+		<profile>
+			<id>unitTest</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>2.17</version>
+						<configuration>
+							<excludes>
+								<exclude>**/integration/**</exclude>
+								<exclude>**/stress/**</exclude>
+								<exclude>**/functional/**</exclude>
+							</excludes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>integrationTest</id>
+			<!-- Exclude integration tests from common test task -->
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>2.17</version>
+						<configuration>
+							<includes>
+								<include>**/integration/**</include>
+							</includes>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+	<modules>
+		<module>../web-service</module>
+		<module>../aggregator-common</module>
+		<module>../aggregator-common-test</module>
+		<module>../aggregator-api</module>
+	</modules>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- ** Project dependencies ** -->
+
+			<dependency>
+				<groupId>com.adarrivi.multiws</groupId>
+				<artifactId>aggregator-common</artifactId>
+				<version>${aggregator.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.adarrivi.multiws</groupId>
+				<artifactId>aggregator-common-test</artifactId>
+				<version>${aggregator.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.adarrivi.multiws</groupId>
+				<artifactId>aggregator-api</artifactId>
+				<version>${aggregator.version}</version>
+			</dependency>
+
+			<!-- ** Project dependencies ** -->
+
+
+			<!-- ** Logging ** -->
+			<!-- Abstract login that allow us to change the underlying logging implementation -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${org.slf4j.version}</version>
+			</dependency>
+
+			<!-- slf4j to log4j2 binding -->
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-slf4j-impl</artifactId>
+				<version>${log4j2.version}</version>
+			</dependency>
+
+			<!-- Proper log4j2 dependency -->
+			<dependency>
+				<groupId>org.apache.logging.log4j</groupId>
+				<artifactId>log4j-core</artifactId>
+				<version>${log4j2.version}</version>
+			</dependency>
+			<!-- ** Logging ** -->
+
+			<!-- ** Spring ** -->
+			<!-- Spring web: for the web services -->
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-webmvc</artifactId>
+				<version>${org.springframework.version}</version>
+			</dependency>
+
+			<!-- Spring MVC: Servlet dependency -->
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>javax.servlet-api</artifactId>
+				<version>3.0.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-oxm</artifactId>
+				<version>${org.springframework.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>${com.fasterxml.jackson.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>${org.springframework.version}</version>
+			</dependency>
+
+			<!-- ** Spring ** -->
+
+			<!-- ** Testing ** -->
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-test</artifactId>
+				<version>${org.springframework.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-all</artifactId>
+				<version>${org.mockito.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${junit.version}</version>
+			</dependency>
+			<!-- ** Testing ** -->
+
+
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<!-- To set the proper jdk version in the classpath -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.0</version>
+				<configuration>
+					<source>${jdk.version}</source>
+					<target>${jdk.version}</target>
+				</configuration>
+			</plugin>
+
+
+			<!-- Sonar Plugin for check project quality control -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>2.1</version>
+			</plugin>
+		</plugins>
+	</build>
+</project>
