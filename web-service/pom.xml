@@ -4,7 +4,7 @@
 	<artifactId>web-service</artifactId>
 	<parent>
 		<groupId>com.adarrivi.multiws</groupId>
-		<artifactId>parent</artifactId>
+		<artifactId>multi-ws-parent</artifactId>
 		<version>0.1</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
