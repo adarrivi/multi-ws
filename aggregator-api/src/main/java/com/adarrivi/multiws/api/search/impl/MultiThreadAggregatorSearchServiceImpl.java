@@ -1,18 +1,19 @@
 package com.adarrivi.multiws.api.search.impl;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import rx.Observable;
 import rx.observables.BlockingObservable;
 
+import com.adarrivi.multiws.api.endpoint.EndPointCommandFactory;
+import com.adarrivi.multiws.api.endpoint.GenericApiCommand;
 import com.adarrivi.multiws.api.search.AggregatedRs;
 import com.adarrivi.multiws.api.search.AggregatorSearchService;
 import com.adarrivi.multiws.api.search.SearchRq;
@@ -24,15 +25,16 @@ class MultiThreadAggregatorSearchServiceImpl implements AggregatorSearchService 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MultiThreadAggregatorSearchServiceImpl.class);
 
 	@Autowired
-	private ApplicationContext applicationContext;
+	private List<EndPointCommandFactory> endPointCommandFactories;
 
 	@Override
 	public SearchRs getAggregatedSearch(SearchRq request) {
 
-		Collection<EndPointCommand<AggregatedRs>> commands = createCommands();
+		Stream<GenericApiCommand> commandStream = endPointCommandFactories.stream().map(
+				factory -> factory.createCommand(request));
 
-		List<Observable<AggregatedRs>> observables = commands.stream().map(command -> command.observe())
-				.collect(Collectors.toList());
+		List<Observable<AggregatedRs>> observables = commandStream.map(command -> command.observe()).collect(
+				Collectors.toList());
 		observables.forEach(observable -> observable.subscribe(this::responseReceived, this::errorReceived));
 
 		BlockingObservable<AggregatedRs> unifiedBlokingObservable = getUnifiedObservable(observables).toBlocking();
@@ -52,16 +54,11 @@ class MultiThreadAggregatorSearchServiceImpl implements AggregatorSearchService 
 		return unifiedObservable;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Collection<EndPointCommand<AggregatedRs>> createCommands() {
-		return (Collection) applicationContext.getBeansOfType(EndPointCommand.class).values();
-	}
-
 	private void responseReceived(AggregatedRs response) {
-		// Log something here?
+		LOGGER.debug("Response received: {}", response);
 	}
 
 	private void errorReceived(Throwable error) {
-		// ThrowException or log?
+		LOGGER.error("Error found from endpont {}", error);
 	}
 }
