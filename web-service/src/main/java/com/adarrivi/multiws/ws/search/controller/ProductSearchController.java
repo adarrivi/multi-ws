@@ -14,12 +14,12 @@ import com.adarrivi.multiws.ws.search.service.ProductSearchService;
 @RestController
 public class ProductSearchController {
 
-    @Autowired
-    private ProductSearchService productSearchService;
+	@Autowired
+	private ProductSearchService productSearchService;
 
-    @RequestMapping(value = "/search/product/get", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ProductSearchRs getCategoryConfig(@RequestBody ProductSearchRq request) {
-        return productSearchService.searchProduct(request);
-    }
+	@RequestMapping(value = "/search/product/get", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ProductSearchRs getCategoryConfig(@RequestBody ProductSearchRq request) {
+		return productSearchService.searchProduct(request);
+	}
 
 }

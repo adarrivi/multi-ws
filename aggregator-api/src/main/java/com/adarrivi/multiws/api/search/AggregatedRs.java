@@ -20,4 +20,9 @@ public class AggregatedRs {
 		return products;
 	}
 
+	@Override
+	public String toString() {
+		return "AggregatedRs [merchant=" + merchant + ", products=" + products + "]";
+	}
+
 }

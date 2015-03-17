@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import rx.Observable;
-import rx.observables.BlockingObservable;
 
 import com.adarrivi.multiws.api.endpoint.EndPointCommandFactory;
 import com.adarrivi.multiws.api.endpoint.GenericApiCommand;
@@ -32,18 +31,17 @@ class MultiThreadAggregatorSearchServiceImpl implements AggregatorSearchService 
 
 		Stream<GenericApiCommand> commandStream = endPointCommandFactories.stream().map(
 				factory -> factory.createCommand(request));
-
-		List<Observable<AggregatedRs>> observables = commandStream.map(command -> command.observe()).collect(
+		List<Observable<AggregatedRs>> observables = commandStream.map(command -> command.toObservable()).collect(
 				Collectors.toList());
-		observables.forEach(observable -> observable.subscribe(this::responseReceived, this::errorReceived));
-
-		BlockingObservable<AggregatedRs> unifiedBlokingObservable = getUnifiedObservable(observables).toBlocking();
+		Observable<AggregatedRs> unifiedObservable = mergeObservables(observables);
 		SearchRs response = new SearchRs();
-		unifiedBlokingObservable.forEach(response::add);
+		unifiedObservable.toBlocking().forEach(aggregatedResopnse -> addResponse(response, aggregatedResopnse));
 		return response;
 	}
 
-	private Observable<AggregatedRs> getUnifiedObservable(List<Observable<AggregatedRs>> observables) {
+	// Unfortunately The RX API doesn't provide a way to merge more than 10
+	// observables
+	private Observable<AggregatedRs> mergeObservables(List<Observable<AggregatedRs>> observables) {
 		if (observables.size() == 1) {
 			return observables.get(0);
 		}
@@ -54,11 +52,9 @@ class MultiThreadAggregatorSearchServiceImpl implements AggregatorSearchService 
 		return unifiedObservable;
 	}
 
-	private void responseReceived(AggregatedRs response) {
-		LOGGER.debug("Response received: {}", response);
+	private void addResponse(SearchRs mainResponse, AggregatedRs aggregatedResponse) {
+		LOGGER.debug("Response received: {}", aggregatedResponse);
+		mainResponse.add(aggregatedResponse);
 	}
 
-	private void errorReceived(Throwable error) {
-		LOGGER.error("Error found from endpont {}", error);
-	}
 }

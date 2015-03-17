@@ -5,6 +5,9 @@ public class ProductInfo {
 	private String productReference;
 	private String productDescription;
 
+	ProductInfo() {
+	}
+
 	public ProductInfo(String productReference, String productDescription) {
 		this.productReference = productReference;
 		this.productDescription = productDescription;
@@ -16,6 +19,11 @@ public class ProductInfo {
 
 	public String getProductDescription() {
 		return productDescription;
+	}
+
+	@Override
+	public String toString() {
+		return "ProductInfo [productReference=" + productReference + ", productDescription=" + productDescription + "]";
 	}
 
 }
